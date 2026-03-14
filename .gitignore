@@ -1,0 +1,41 @@
+# Environment & secrets
+.env
+*.env
+
+# Database
+db/memex.db
+db/*.db
+
+# Python
+venv/
+__pycache__/
+*.pyc
+*.pyo
+
+# Logs
+logs/
+*.log
+
+# Exports
+exports/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Personal / internal notes
+CLAUDE_MEMORY.md
+Claude_Code_memex.md
+PIT_MEMORY.MD
+.claude/
+
+# DB uuid
+db/uuid.txt
+
+# SQLite WASM (large binaries, not part of the app)
+app/sqlite3.wasm
+app/sqlite3.mjs
+app/sqlite3-node.mjs
+app/sqlite3-opfs-async-proxy.js
+app/sqlite3-worker1.js
+app/sqlite3-worker1-promiser.js

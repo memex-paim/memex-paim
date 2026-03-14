@@ -1,0 +1,21 @@
+{
+  "name": "Memex Paim",
+  "short_name": "Memex",
+  "description": "Személyes AI memória – offline, az adatod a tiéd",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0d1117",
+  "theme_color": "#161b22",
+  "orientation": "portrait",
+  "lang": "hu",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ],
+  "categories": ["productivity", "utilities"],
+  "prefer_related_applications": false
+}
