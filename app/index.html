@@ -471,11 +471,11 @@ input[type=file]#imp-fajl{display:none;}
         <button class="btn" style="width:auto;padding:5px 10px;" onclick="keresFutat()">↵</button>
       </div>
       <div class="ido-gombok" id="ido-gombok" style="display:flex;flex-wrap:wrap;gap:4px;padding:4px 0 6px;">
-        <button class="pfx" onclick="idoGomb(this)" data-v="today">📅 today</button>
-        <button class="pfx" onclick="idoGomb(this)" data-v="yesterday">⬅ yesterday</button>
-        <button class="pfx" onclick="idoGomb(this)" data-v="last week">📆 last week</button>
-        <button class="pfx" onclick="idoGomb(this)" data-v="last month">🗓 last month</button>
-        <button class="pfx" onclick="idoGomb(this)" data-v="@voice">🎤 @voice</button>
+        <button class="pfx" onclick="idoGomb(this)" data-v="today" id="ido-ma">📅 today</button>
+        <button class="pfx" onclick="idoGomb(this)" data-v="yesterday" id="ido-tegnap">⬅ yesterday</button>
+        <button class="pfx" onclick="idoGomb(this)" data-v="last week" id="ido-het">📆 last week</button>
+        <button class="pfx" onclick="idoGomb(this)" data-v="last month" id="ido-honap">🗓 last month</button>
+        <button class="pfx" onclick="idoGomb(this)" data-v="@voice" id="ido-voice">🎤 @voice</button>
       </div>
       <div style="font-size:0.68rem;color:var(--text2);padding:2px 0 6px;" id="keres-sugo">Szöveg · @horgony · időszűrő · 🔗 kapcsolódó</div>
       <div id="talalat-lista" class="talalat-lista">
@@ -655,6 +655,7 @@ const FORD = {
     session_horg_ph:'@horgony @horgony2 …',
     keres_tipp:'Írj be kifejezést és nyomj Entert. Időszűrő: "tegnap", "múlt héten", "3 napja", "januárban"',
     keres_sugo:'Szöveg · @horgony · időszűrő · 🔗 kapcsolódó',
+    ido_ma:'📅 ma', ido_tegnap:'⬅ tegnap', ido_het:'📆 múlt héten', ido_honap:'🗓 múlt hónapban',
     kapcsolodo:'🔗 kapcsolódó',
     kapcsolodo_nincs:'Nincs kapcsolódó bejegyzés.',
     ido_szuro:'Időszűrő aktív:',
@@ -707,6 +708,7 @@ const FORD = {
     session_horg_ph:'@anchor @anchor2 …',
     keres_tipp:'Type a term and press Enter. Time filters: "yesterday", "last week", "3 days ago", "in January"',
     keres_sugo:'Text · @anchor · time filter · 🔗 related',
+    ido_ma:'📅 today', ido_tegnap:'⬅ yesterday', ido_het:'📆 last week', ido_honap:'🗓 last month',
     kapcsolodo:'🔗 related',
     kapcsolodo_nincs:'No related entries.',
     ido_szuro:'Time filter active:',
@@ -1210,6 +1212,7 @@ function langFrissit() {
   // Search tab
   s('keres-tipp', 'keres_tipp');
   s('keres-sugo', 'keres_sugo');
+  s('ido-ma', 'ido_ma'); s('ido-tegnap', 'ido_tegnap'); s('ido-het', 'ido_het'); s('ido-honap', 'ido_honap');
   // Export tab
   s('l-db-free', 'db_free');
   s('l-db-paid', 'db_paid');
