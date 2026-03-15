@@ -3,16 +3,13 @@
  * Offline cache: minden statikus fájlt cache-el, hogy internet nélkül is betöltsön
  */
 
-const CACHE_VERSION = 'memex-v5';
+const CACHE_VERSION = 'memex-v6';
 const STATIC_ASSETS = [
   './',
   './index.html',
   './memex-db.js',
-  './sqlite3.mjs',
-  './sqlite3.wasm',
-  './sqlite3-opfs-async-proxy.js',
-  './sqlite3-worker1.js',
-  './sqlite3-worker1-promiser.js',
+  './manifest.json',
+  './icon.svg',
 ];
 
 // Telepítés: statikus fájlok cache-be
