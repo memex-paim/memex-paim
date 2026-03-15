@@ -216,7 +216,7 @@ input[type=file]#imp-fajl{display:none;}
       <ul>
         <li id="help-li1">🗄 <b>DB</b> – saját adatbázisodból keres</li>
         <li id="help-li2">🤖 <b>AI</b> – csak AI tudásából válaszol</li>
-        <li id="help-li3">⚡ <b>Mind</b> – DB + AI egyszerre</li>
+        <li id="help-li3">🎤 Voice input – tap mic, saved with @voice</li>
       </ul>
     </div>
     <div class="help-section">
@@ -624,12 +624,12 @@ window.gyariVisszaallitas = async function() {
 
 window.fontSizeSet = function(sz) {
   localStorage.setItem('mx_fontsize', sz);
-  document.body.style.fontSize = sz + 'px';
+  document.documentElement.style.fontSize = sz + 'px';
 };
 (function(){
   const fs = localStorage.getItem('mx_fontsize') || '16';
   document.getElementById('font-size').value = fs;
-  document.body.style.fontSize = fs + 'px';
+  document.documentElement.style.fontSize = fs + 'px';
 })();
 
 // ── Sidebar ───────────────────────────────────────────────────────────────────
@@ -652,7 +652,7 @@ const FORD = {
     mentes:'💾 Mentés', modell:'Modell', osszes:'Összes', human:'Human',
     chat:'Chat', bejegyzes:'Bejegyzés', kereses:'Keresés', exp:'Import/Export',
     tartalom:'Tartalom', horgonyok:'Horgonyok', tipus:'Típus', fontossag:'Fontosság',
-    kuldo:'▶', welcome:'Szia! Válassz módot és kérdezz.\n🗄 DB – adatbázisból\n🤖 AI – csak AI tudásából\n⚡ Mind – DB + AI egyszerre',
+    kuldo:'▶', welcome:'Szia! Válassz módot és kérdezz.\n🗄 DB – adatbázisból\n🤖 AI – csak AI tudásából\n🎤 Hangos bevitel – 🎤 gomb, @voice horgonnyal mentve',
     hint_db:'DB-ből keres', hint_ai:'Csak AI tudásából', hint_mix:'DB + AI egyszerre', hint_agent:'Pl: "emlékezz hogy..." · "mit tudok a ...ről?" · "mentsd el hogy..."',
     be:'BE', ki:'KI', keres_ph:'Keresés…', input_ph:'Írj kérdést…', horg_ph:'pl. memex, ötlet',
     export_h:'Export', import_h:'Import', uj_db:'Új adatbázis', uuid_h:'UUID',
@@ -705,7 +705,7 @@ const FORD = {
     mentes:'💾 Save', modell:'Model', osszes:'Total', human:'Human',
     chat:'Chat', bejegyzes:'Entry', kereses:'Search', exp:'Import/Export',
     tartalom:'Content', horgonyok:'Anchors', tipus:'Type', fontossag:'Priority',
-    kuldo:'▶', welcome:'Hi! Choose a mode and ask.\n🗄 DB – from the database\n🤖 AI – from AI knowledge only\n⚡ Both – DB + AI combined',
+    kuldo:'▶', welcome:'Hi! Choose a mode and ask.\n🗄 DB – from the database\n🤖 AI – from AI knowledge only\n🎤 Voice – tap mic to speak, saved with @voice',
     hint_db:'Searches database', hint_ai:'AI only', hint_mix:'DB + AI combined', hint_agent:'E.g: "remember that..." · "what do I know about...?" · "save that..."',
     be:'ON', ki:'OFF', keres_ph:'Search…', input_ph:'Type a question…', horg_ph:'e.g. memex, idea',
     export_h:'Export', import_h:'Import', uj_db:'New database', uuid_h:'UUID',
