@@ -2175,6 +2175,17 @@ window.uuidMutat = function() {
     await dbInit();
     _dbKesz = true;
     dot.className = 'dot-ok';
+    // Verzió ellenőrzés
+    try {
+      const vr = await fetch('./version.json?_=' + Date.now());
+      const vj = await vr.json();
+      const tarolt = localStorage.getItem('mx_ver');
+      if (tarolt && tarolt !== vj.v) {
+        const badge = document.getElementById('update-badge');
+        if (badge) badge.style.display = 'inline-block';
+      }
+      localStorage.setItem('mx_ver', vj.v);
+    } catch(e) {}
     const t = getApiTipus();
     const k = getApiKey(t);
     txt.textContent = ' Kész · ' + (t === 'offline' || !k ? 'Offline mód' : t);
