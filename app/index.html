@@ -28,6 +28,14 @@ if('serviceWorker'in navigator){
     // Óránként ellenőriz
     setInterval(() => reg.update(), 60 * 60 * 1000);
   }).catch(()=>{});
+  // Ha az új SW átveszi az irányítást (skipWaiting után) → badge megjelenik
+  let frissitesVolt = false;
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (frissitesVolt) return;
+    frissitesVolt = true;
+    const badge = document.getElementById('update-badge');
+    if (badge) badge.style.display = 'inline-block';
+  });
   // Láthatóvá válásnál is ellenőriz
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'visible') {
