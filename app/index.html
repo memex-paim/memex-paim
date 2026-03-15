@@ -172,8 +172,8 @@ input[type=file]#imp-fajl{display:none;}
     <div class="help-section">
       <h3 id="help-h2">AI beállítás</h3>
       <p id="help-p2">Adj meg egy API kulcsot az oldalsávban:<br>
-      • <b>Gemini</b>: ingyenes Google fiókkal – aistudio.google.com → Get API key<br>
-      • <b>Claude</b>: claude.ai/api – fizetős<br>
+      • <b>Gemini</b>: ingyenes Google fiókkal – <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener" style="color:var(--green)">aistudio.google.com → Get API key</a><br>
+      • <b>Claude</b>: <a href="https://console.anthropic.com/" target="_blank" rel="noopener" style="color:var(--green)">console.anthropic.com</a> – fizetős<br>
       A kulcs csak a telefonodon tárolódik.</p>
     </div>
     <div class="help-section">
@@ -601,7 +601,7 @@ const FORD = {
     kulcs_hianyz:' – kulcs hiányzik!', kesz:' kész', offline_mod:'Offline mód – AI nélkül',
     help_close:'✕ Bezár', help_tagline:'Az AI elfelejt. Az adatbázis emlékszik.',
     help_h1:'Offline PWA', help_p1:'Az adatod a telefonon van – nincs szerver, nincs felhő. Internet csak az AI válaszokhoz kell (Claude / Gemini API kulcs). Az adatbázis az eszközödön marad örökre.',
-    help_h2:'AI beállítás', help_p2:'Adj meg egy API kulcsot az oldalsávban:\n• Gemini: ingyenes Google fiókkal – aistudio.google.com → Get API key\n• Claude: claude.ai/api – fizetős\nA kulcs csak a telefonodon tárolódik.',
+    help_h2:'AI beállítás', help_p2:'Adj meg egy API kulcsot az oldalsávban:<br>• <b>Gemini</b>: ingyenes Google fiókkal – <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener" style="color:var(--green)">aistudio.google.com → Get API key</a><br>• <b>Claude</b>: <a href="https://console.anthropic.com/" target="_blank" rel="noopener" style="color:var(--green)">console.anthropic.com</a> – fizetős<br>A kulcs csak a telefonodon tárolódik.',
     help_h3:'Chat módok', help_li1:'🗄 DB – saját adatbázisodból keres', help_li2:'🤖 AI – csak AI tudásából válaszol', help_li3:'⚡ Mind – DB + AI egyszerre',
     help_h4:'Export / Import', help_p4:'Biztonsági mentés fájlba. Jelszó opcionális – ha elfelejted, az export fájl olvashatatlan lesz, de az adatbázisod a telefonon megmarad.',
     session_horg:'Chat ablak aktív horgony',
@@ -643,7 +643,7 @@ const FORD = {
     kulcs_hianyz:' – key missing!', kesz:' ready', offline_mod:'Offline mode – no AI',
     help_close:'✕ Close', help_tagline:'AI forgets. The database remembers.',
     help_h1:'Offline PWA', help_p1:'Your data stays on your phone – no server, no cloud. Internet is only needed for AI responses (Claude / Gemini API key). Your database stays on your device forever.',
-    help_h2:'AI setup', help_p2:'Enter an API key in the sidebar:\n• Gemini: free with a Google account – aistudio.google.com → Get API key\n• Claude: claude.ai/api – paid\nThe key is stored only on your device.',
+    help_h2:'AI setup', help_p2:'Enter an API key in the sidebar:<br>• <b>Gemini</b>: free with a Google account – <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener" style="color:var(--green)">aistudio.google.com → Get API key</a><br>• <b>Claude</b>: <a href="https://console.anthropic.com/" target="_blank" rel="noopener" style="color:var(--green)">console.anthropic.com</a> – paid<br>The key is stored only on your device.',
     help_h3:'Chat modes', help_li1:'🗄 DB – searches your own database', help_li2:'🤖 AI – answers from AI knowledge only', help_li3:'⚡ Both – DB + AI at the same time',
     help_h4:'Export / Import', help_p4:'Backup to a file. Password is optional – if you forget it, the export file will be unreadable, but your database on the device remains intact.',
     session_horg:'Active chat anchor',
@@ -1110,7 +1110,7 @@ function langFrissit() {
   s('help-h1', 'help_h1');
   s('help-p1', 'help_p1');
   s('help-h2', 'help_h2');
-  s('help-p2', 'help_p2');
+  const hp2 = document.getElementById('help-p2'); if(hp2) hp2.innerHTML = tr('help_p2');
   s('help-h3', 'help_h3');
   s('help-li1', 'help_li1');
   s('help-li2', 'help_li2');
