@@ -492,7 +492,11 @@ input[type=file]#imp-fajl{display:none;}
         <button class="pfx" onclick="idoGomb(this)" data-v="@voice" id="ido-voice">🎤 @voice</button>
       </div>
       <div style="font-size:0.68rem;color:var(--text2);padding:2px 0 6px;" id="keres-sugo">Szöveg · @horgony · időszűrő · 🔗 kapcsolódó</div>
-      <div id="keres-horg-chips" style="display:flex;flex-wrap:wrap;gap:4px;padding:0 0 6px;"></div>
+      <div id="keres-horg-chips" style="display:flex;flex-wrap:wrap;gap:4px;padding:0 0 4px;"></div>
+      <div style="margin-bottom:6px;">
+        <button class="pfx" onclick="keresHorgOsszesToggle()" id="keres-horg-osszes-btn" style="font-size:0.68rem;padding:2px 6px;width:auto;">▾ All anchors</button>
+        <div id="keres-horg-osszes-lista" style="display:none;flex-wrap:wrap;gap:4px;margin-top:4px;max-height:120px;overflow-y:auto;"></div>
+      </div>
       <div id="talalat-lista" class="talalat-lista">
         <div class="small" id="keres-tipp">Írj be kifejezést és nyomj Entert.</div>
       </div>
@@ -2175,6 +2179,31 @@ async function horgChipFrissit() {
     }
   } catch(e) {}
 }
+
+window.keresHorgOsszesToggle = async function() {
+  const lista = document.getElementById('keres-horg-osszes-lista');
+  const btn = document.getElementById('keres-horg-osszes-btn');
+  if (lista.style.display === 'none') {
+    const mind = await horgonyListaOsszes();
+    lista.innerHTML = '';
+    mind.forEach(h => {
+      const b = document.createElement('button');
+      b.className = 'pfx';
+      b.style.cssText = 'font-size:0.68rem;padding:2px 6px;width:auto;';
+      b.textContent = '@' + h.horgony;
+      b.onclick = () => {
+        document.getElementById('keres-q').value = '@' + h.horgony;
+        keresFutat();
+      };
+      lista.appendChild(b);
+    });
+    lista.style.display = 'flex';
+    btn.textContent = '▴ All anchors';
+  } else {
+    lista.style.display = 'none';
+    btn.textContent = '▾ All anchors';
+  }
+};
 
 window.horgOsszesToggle = async function() {
   const lista = document.getElementById('horg-osszes-lista');
