@@ -382,7 +382,7 @@ input[type=file]#imp-fajl{display:none;}
       <div class="input-sor">
         <textarea id="user-input" placeholder="Írj kérdést…"
           onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();kuld();}"></textarea>
-        <button class="mic-btn" id="mic-btn" onclick="mikrofon()" title="Hangos bevitel">🎤</button>
+        <button class="mic-btn" id="mic-btn" onclick="mikrofon()">🎤</button>
         <button class="send-btn" id="send-btn" onclick="kuld()">▶</button>
       </div>
     </div>
@@ -625,6 +625,7 @@ const FORD = {
     meret_kis:'Kis', meret_normal:'Normál', meret_nagy:'Nagy', meret_nagyobb:'Nagyobb',
     tip_dontes:'!döntés', tip_otlet:'!ötlet', tip_hiba:'!hiba', tip_projekt:'@projekt',
     app_frissit:'🔄 App frissítése',
+    mic_title:'Hangos bevitel',
     gemini_key_link:'🔑 Ingyenes Gemini API kulcs',
     claude_key_link:'🔑 Claude API kulcs (~$5)',
     gyari_visszaallitas:'⚠ Gyári visszaállítás',
@@ -669,6 +670,7 @@ const FORD = {
     meret_kis:'Small', meret_normal:'Normal', meret_nagy:'Large', meret_nagyobb:'Larger',
     tip_dontes:'!decision', tip_otlet:'!idea', tip_hiba:'!bug', tip_projekt:'@project',
     app_frissit:'🔄 Update app',
+    mic_title:'Voice input',
     gemini_key_link:'🔑 Get free Gemini API key',
     claude_key_link:'🔑 Get Claude API key (~$5)',
     gyari_visszaallitas:'⚠ Factory reset',
@@ -1130,6 +1132,7 @@ function langFrissit() {
   // Sidebar
   s('l-betumeret', 'betumeret');
   s('btn-app-frissit', 'app_frissit');
+  const mb = document.getElementById('mic-btn'); if(mb) mb.title = tr('mic_title');
   const gkl = document.getElementById('btn-gemini-key'); if(gkl) gkl.textContent = tr('gemini_key_link');
   const ckl = document.getElementById('btn-claude-key'); if(ckl) ckl.textContent = tr('claude_key_link');
   s('btn-gyari', 'gyari_visszaallitas');
