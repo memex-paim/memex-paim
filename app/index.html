@@ -442,6 +442,13 @@ input[type=file]#imp-fajl{display:none;}
           onkeydown="if(event.key==='Enter')keresFutat()">
         <button class="btn" style="width:auto;padding:5px 10px;" onclick="keresFutat()">↵</button>
       </div>
+      <div class="ido-gombok" id="ido-gombok" style="display:flex;flex-wrap:wrap;gap:4px;padding:4px 0 6px;">
+        <button class="pfx" onclick="idoGomb(this)" data-v="today">📅 today</button>
+        <button class="pfx" onclick="idoGomb(this)" data-v="yesterday">⬅ yesterday</button>
+        <button class="pfx" onclick="idoGomb(this)" data-v="last week">📆 last week</button>
+        <button class="pfx" onclick="idoGomb(this)" data-v="last month">🗓 last month</button>
+        <button class="pfx" onclick="idoGomb(this)" data-v="@voice">🎤 @voice</button>
+      </div>
       <div id="talalat-lista" class="talalat-lista">
         <div class="small" id="keres-tipp">Írj be kifejezést és nyomj Entert.</div>
       </div>
@@ -1838,6 +1845,15 @@ window.bejMent = async function() {
     if (mfl) { mfl.style.display = 'block'; setTimeout(() => mfl.style.display = 'none', 2000); }
   }
   await statFrissit();
+};
+
+// ── Keresés – gyorsgombok ─────────────────────────────────────────────────────
+
+window.idoGomb = function(btn) {
+  document.querySelectorAll('#ido-gombok .pfx').forEach(b => b.classList.remove('p-db'));
+  btn.classList.add('p-db');
+  document.getElementById('keres-q').value = btn.dataset.v;
+  keresFutat();
 };
 
 // ── Keresés – időszűrő parser ─────────────────────────────────────────────────
