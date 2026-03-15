@@ -2073,6 +2073,14 @@ window.keresFutat = async function() {
     return;
   }
 
+  const db = eredmenyek.length;
+  const mutat = Math.min(db, 30);
+  const szamlalo = document.createElement('div');
+  szamlalo.className = 'small';
+  szamlalo.style.cssText = 'color:var(--text2);padding:2px 0 6px;';
+  szamlalo.textContent = db > 30 ? `${mutat} / ${db}` : `${db}`;
+  lista.appendChild(szamlalo);
+
   eredmenyek.slice(0,30).forEach(r => {
     const hArr = JSON.parse(r.horgonyok || '[]');
     const div = document.createElement('div');
