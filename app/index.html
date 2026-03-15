@@ -14,7 +14,26 @@
 <title>Memex Paim</title>
 <script>
 if('serviceWorker'in navigator){
-  navigator.serviceWorker.register('./sw.js').catch(()=>{});
+  navigator.serviceWorker.register('./sw.js').then(reg => {
+    // Új verzió detektálás
+    reg.addEventListener('updatefound', () => {
+      const newSW = reg.installing;
+      newSW.addEventListener('statechange', () => {
+        if (newSW.state === 'installed' && navigator.serviceWorker.controller) {
+          const badge = document.getElementById('update-badge');
+          if (badge) badge.style.display = 'inline-block';
+        }
+      });
+    });
+    // Óránként ellenőriz
+    setInterval(() => reg.update(), 60 * 60 * 1000);
+  }).catch(()=>{});
+  // Láthatóvá válásnál is ellenőriz
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') {
+      navigator.serviceWorker.getRegistration().then(reg => reg && reg.update());
+    }
+  });
 }
 // Sidebar FOUC megelőzés – még renderelés előtt alkalmazzuk
 if(localStorage.getItem('mx_sidebar')==='false'){
@@ -209,6 +228,7 @@ input[type=file]#imp-fajl{display:none;}
     <span id="conn-text"> Betölt…</span>
   </div>
   <div class="header-right">
+    <button id="update-badge" onclick="location.reload()" style="display:none;font-size:0.65rem;background:var(--orange);color:#fff;border:none;border-radius:10px;padding:2px 8px;cursor:pointer;animation:mic-pulse 2s infinite;" title="New version available">🆕 Update</button>
     <div class="skin-dots">
       <div class="sdot on"  style="background:#161b22;" onclick="skinSet('')"       title="Sötét"></div>
       <div class="sdot"     style="background:#f6f8fa;" onclick="skinSet('light')"  title="Világos"></div>
