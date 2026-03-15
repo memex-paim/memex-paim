@@ -3,7 +3,7 @@
  * Offline cache: minden statikus fájlt cache-el, hogy internet nélkül is betöltsön
  */
 
-const CACHE_VERSION = 'memex-v3';
+const CACHE_VERSION = 'memex-v4';
 const STATIC_ASSETS = [
   './',
   './index.html',
