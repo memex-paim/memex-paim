@@ -110,6 +110,9 @@ input[type="password"]{letter-spacing:2px;}
 .send-btn{background:var(--accent);border:none;color:#fff;padding:0 13px;border-radius:4px;cursor:pointer;font-size:0.83rem;height:46px;}
 .send-btn:hover{opacity:0.85;}
 .send-btn:disabled{background:var(--bg2);color:var(--text2);cursor:default;}
+.mic-btn{background:none;border:1px solid var(--border);color:var(--text2);padding:0 10px;border-radius:4px;cursor:pointer;font-size:1rem;height:46px;transition:all 0.2s;}
+.mic-btn.recording{border-color:var(--red);color:var(--red);animation:mic-pulse 1s infinite;}
+@keyframes mic-pulse{0%,100%{opacity:1}50%{opacity:0.4}}
 .kereses-panel{flex:1;padding:14px;overflow-y:auto;display:flex;flex-direction:column;gap:10px;}
 .kereses-sor{display:flex;gap:5px;}
 .kereses-sor input{flex:1;}
@@ -379,6 +382,7 @@ input[type=file]#imp-fajl{display:none;}
       <div class="input-sor">
         <textarea id="user-input" placeholder="Írj kérdést…"
           onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();kuld();}"></textarea>
+        <button class="mic-btn" id="mic-btn" onclick="mikrofon()" title="Hangos bevitel">🎤</button>
         <button class="send-btn" id="send-btn" onclick="kuld()">▶</button>
       </div>
     </div>
@@ -1249,6 +1253,49 @@ window.fontSet = function(n) {
   });
 };
 
+// ── Hangos bevitel ────────────────────────────────────────────────────────────
+
+let _voiceActive = false;
+let _voiceRec = null;
+let _voiceFlag = false; // true ha az aktuális üzenet hangos bevitelből jött
+
+window.mikrofon = function() {
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRecognition) {
+    alert('A böngésző nem támogatja a hangos bevitelt. Használj Chrome-ot vagy Safarit.');
+    return;
+  }
+  const btn = document.getElementById('mic-btn');
+  if (_voiceActive) {
+    _voiceRec && _voiceRec.stop();
+    return;
+  }
+  _voiceRec = new SpeechRecognition();
+  _voiceRec.lang = aktivLang === 'hu' ? 'hu-HU' : aktivLang === 'de' ? 'de-DE' : aktivLang === 'fr' ? 'fr-FR' : 'en-US';
+  _voiceRec.continuous = false;
+  _voiceRec.interimResults = false;
+
+  _voiceRec.onstart = () => {
+    _voiceActive = true;
+    btn.classList.add('recording');
+  };
+  _voiceRec.onresult = (e) => {
+    const szoveg = e.results[0][0].transcript;
+    const ta = document.getElementById('user-input');
+    ta.value = (ta.value ? ta.value + ' ' : '') + szoveg;
+    _voiceFlag = true;
+  };
+  _voiceRec.onend = () => {
+    _voiceActive = false;
+    btn.classList.remove('recording');
+  };
+  _voiceRec.onerror = () => {
+    _voiceActive = false;
+    btn.classList.remove('recording');
+  };
+  _voiceRec.start();
+};
+
 // ── Session horgony ───────────────────────────────────────────────────────────
 
 window.sessionHorgonyFrissit = function() {
@@ -1635,7 +1682,9 @@ window.kuld = async function() {
     if (memexBe) {
       const sessionH = getSessionHorgonyok();
       const autoFont = parseInt(document.getElementById('auto-fontossag').value) || 4;
-      await bejegyez({ tartalom: 'K: ' + kerdes, horgonyok: ['chat',...sessionH], fontossag: autoFont, iro: 'human' });
+      const voiceH = _voiceFlag ? ['voice'] : [];
+      _voiceFlag = false;
+      await bejegyez({ tartalom: 'K: ' + kerdes, horgonyok: ['chat',...voiceH,...sessionH], fontossag: autoFont, iro: 'human' });
       if (aiValasz) {
         if (szavakSzama(aiValasz) > 500) {
           const chunks = szovegDarabol(aiValasz);
