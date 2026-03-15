@@ -2128,27 +2128,32 @@ window.exportFutat = async function() {
 
 // ── Import ────────────────────────────────────────────────────────────────────
 
+let _impFajl = null;
+
 window.impFajlValasztva = function(inp) {
   const nev = document.getElementById('imp-fajl-nev');
   if (inp.files?.[0]) {
-    nev.textContent = '✓ ' + inp.files[0].name;
+    _impFajl = inp.files[0];
+    nev.textContent = '✓ ' + _impFajl.name;
     nev.className = 'imp-fajl-nev van';
-    document.getElementById('imp-fajl-lbl').textContent = inp.files[0].name;
+    document.getElementById('imp-fajl-lbl').textContent = _impFajl.name;
   }
 };
 
 window.importFutat = async function(ujEszkoz) {
-  const fajlInput = document.getElementById('imp-fajl');
-  const fajl = fajlInput.files?.[0];
-  if (!fajl) { alert('Válassz fájlt!'); return; }
+  const fajl = _impFajl;
+  if (!fajl) { alert(tr('fajl_valaszt')); return; }
   const jelszo = document.getElementById('imp-jelszo').value;
   const el = document.getElementById('imp-eredmeny');
   el.textContent = '…';
   try {
     await importMemex(fajl, jelszo);
-    el.innerHTML = '<span style="color:var(--green)">✓ Import sikeres – frissítsd az oldalt</span>';
+    _impFajl = null;
+    el.innerHTML = '<span style="color:var(--green)">' + tr('mentve') + '</span>';
+    setTimeout(() => { location.reload(); }, 1500);
   } catch(e) {
-    el.textContent = 'Hiba: ' + e.message;
+    el.textContent = '⚠ ' + e.message;
+    setTimeout(() => { el.textContent = ''; }, 5000);
   }
 };
 
