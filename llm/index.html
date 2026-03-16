@@ -8,14 +8,14 @@
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
   :root {
-    --bg: #ffffff;
-    --bg2: #f7f7f8;
-    --bg3: #efefef;
-    --text: #1a1a1a;
-    --text2: #6b7280;
-    --text3: #9ca3af;
-    --border: #e5e7eb;
-    --accent: #2563eb;
+    --bg: #1a1a1a;
+    --bg2: #141414;
+    --bg3: #252525;
+    --text: #e8e8e8;
+    --text2: #a0a0a0;
+    --text3: #606060;
+    --border: #2e2e2e;
+    --accent: #4f8ef7;
     --sidebar-w: 220px;
   }
 
@@ -32,17 +32,17 @@
   /* ── Sidebar ── */
   #sidebar {
     width: var(--sidebar-w);
+    min-width: var(--sidebar-w);
     background: var(--bg2);
     border-right: 1px solid var(--border);
     display: flex;
     flex-direction: column;
     padding: 20px 0;
-    flex-shrink: 0;
-    transform: translateX(0);
-    transition: transform 0.2s ease;
+    overflow: hidden;
+    transition: width 0.2s ease, min-width 0.2s ease, padding 0.2s ease;
   }
 
-  #sidebar.hidden { transform: translateX(calc(-1 * var(--sidebar-w))); }
+  #sidebar.hidden { width: 0; min-width: 0; padding: 0; }
 
   .sidebar-logo {
     padding: 0 20px 24px;
@@ -221,7 +221,7 @@
     box-shadow: 0 1px 4px rgba(0,0,0,0.06);
   }
 
-  #input-box:focus-within { border-color: #93c5fd; box-shadow: 0 0 0 3px #dbeafe; }
+  #input-box:focus-within { border-color: #4f8ef7; box-shadow: 0 0 0 3px #1e3a6e44; }
 
   #user-input {
     flex: 1;
@@ -288,8 +288,7 @@
 
   /* ── Mobile ── */
   @media (max-width: 600px) {
-    #sidebar { position: absolute; left: 0; top: 0; height: 100%; z-index: 100; box-shadow: 2px 0 12px rgba(0,0,0,0.08); }
-    #sidebar.hidden { transform: translateX(-100%); }
+    :root { --sidebar-w: 200px; }
   }
 </style>
 </head>
