@@ -163,7 +163,10 @@
 <script type="module">
 import * as webllm from "https://esm.run/@mlc-ai/web-llm@0.2.79";
 
-const MODEL_ID = "SmolLM2-360M-Instruct-q4f16_1-MLC";
+const MODELS = [
+  "SmolLM2-360M-Instruct-q4f16_1-MLC",       // fast, small — needs shader-f16
+  "Qwen2.5-0.5B-Instruct-q4f32_1-MLC"        // fallback — broader GPU support
+];
 // /no_think disables Qwen3 chain-of-thought — answer comes instantly from DB context
 const SYSTEM_PROMPT = "You are a concise assistant. Answer in maximum 2-3 short sentences. Be direct and clear. No unnecessary explanations. /no_think";
 
@@ -201,35 +204,41 @@ async function initModel() {
   }
 
   log('WebGPU ✓', 'sys');
-  log('Loading model: ' + MODEL_ID, 'info');
-  log('First run: ~376MB download. Next runs: instant.', 'sys');
-
   progWrap.style.display = 'block';
-  setStatus('LOADING MODEL...');
 
-  try {
-    engine = await webllm.CreateMLCEngine(MODEL_ID, {
-      initProgressCallback: (progress) => {
-        const pct = Math.round((progress.progress || 0) * 100);
-        progBar.style.width = pct + '%';
-        progTxt.textContent = progress.text || ('Loading... ' + pct + '%');
-      }
-    });
+  for (const modelId of MODELS) {
+    log('Trying: ' + modelId, 'info');
+    setStatus('LOADING...');
+    progBar.style.width = '0%';
 
-    progWrap.style.display = 'none';
-    log('Model loaded ✓', 'sys');
-    log('─────────────────────────────────────', 'sys');
-    log('Ready. Type your question below.', 'info');
-    setStatus('READY · ' + MODEL_ID);
-    input.disabled = false;
-    sendBtn.disabled = false;
-    input.focus();
+    try {
+      engine = await webllm.CreateMLCEngine(modelId, {
+        initProgressCallback: (progress) => {
+          const pct = Math.round((progress.progress || 0) * 100);
+          progBar.style.width = pct + '%';
+          progTxt.textContent = progress.text || ('Loading... ' + pct + '%');
+        }
+      });
 
-  } catch (e) {
-    progWrap.style.display = 'none';
-    log('ERROR: ' + e.message, 'err');
-    setStatus('ERROR');
+      progWrap.style.display = 'none';
+      log('Model loaded ✓ — ' + modelId, 'sys');
+      log('─────────────────────────────────────', 'sys');
+      log('Ready. Type your question below.', 'info');
+      setStatus('READY · ' + modelId);
+      input.disabled = false;
+      sendBtn.disabled = false;
+      input.focus();
+      return;
+
+    } catch (e) {
+      log('Failed: ' + e.message.slice(0, 80) + '...', 'err');
+      log('Trying next model...', 'sys');
+    }
   }
+
+  progWrap.style.display = 'none';
+  log('All models failed. Check browser WebGPU support.', 'err');
+  setStatus('ERROR');
 }
 
 async function sendMessage() {
