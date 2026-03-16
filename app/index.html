@@ -243,6 +243,7 @@ input[type=file]#imp-fajl{display:none;}
   <div class="conn-info" id="conn-info">
     <span id="conn-dot" class="dot-warn">●</span>
     <span id="conn-text"> Betölt…</span>
+    <span id="token-kijelzo" style="display:none;margin-left:10px;font-size:0.68rem;color:var(--text2);letter-spacing:0.5px;"></span>
   </div>
   <div class="header-right">
     <button id="update-badge" onclick="location.reload()" style="display:none;font-size:0.65rem;background:var(--orange);color:#fff;border:none;border-radius:10px;padding:2px 8px;cursor:pointer;animation:mic-pulse 2s infinite;" title="New version available">🆕 Update</button>
@@ -324,6 +325,10 @@ input[type=file]#imp-fajl{display:none;}
           <option value="2">🟡 Fontos</option>
           <option value="4" selected>⚪ Duma</option>
         </select>
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:6px;margin-top:2px;">
+          <span style="font-size:0.7rem;color:var(--text2);" id="l-token-show">🪙 Token kijelző</span>
+          <button id="token-show-toggle" onclick="tokenShowToggle()" style="font-size:0.65rem;padding:2px 8px;border-radius:10px;border:1px solid var(--border);background:var(--bg2);color:var(--text2);cursor:pointer;">ON</button>
+        </div>
       </div>
     </div>
   </div>
@@ -598,6 +603,51 @@ let memexBe = localStorage.getItem('mx_be') !== 'false';
 let aktPrefix = 'db';
 let fontossag = 3;
 let _dbKesz = false;
+let _lastApiTokens = 0;
+
+// ── Token kijelző ─────────────────────────────────────────────────────────────
+
+function tokenMaiNap() { return new Date().toISOString().slice(0, 10); }
+
+function tokenOlvas() {
+  const nap = tokenMaiNap();
+  const tarolt = localStorage.getItem('mx_tokens_nap');
+  if (tarolt !== nap) {
+    localStorage.setItem('mx_tokens_nap', nap);
+    localStorage.setItem('mx_tokens', '0');
+    return 0;
+  }
+  return parseInt(localStorage.getItem('mx_tokens') || '0');
+}
+
+function tokenHozzaad(n) {
+  if (!n) return;
+  const ossz = tokenOlvas() + n;
+  localStorage.setItem('mx_tokens', String(ossz));
+  tokenKijelzoFrissit();
+}
+
+function tokenFormat(n) {
+  if (n >= 1000) return (n / 1000).toFixed(1).replace('.0', '') + 'k';
+  return String(n);
+}
+
+function tokenKijelzoFrissit() {
+  const el = document.getElementById('token-kijelzo');
+  if (!el) return;
+  const mutat = localStorage.getItem('mx_token_show') !== 'false';
+  if (!mutat) { el.style.display = 'none'; return; }
+  const n = tokenOlvas();
+  el.textContent = 'T: ' + tokenFormat(n);
+  el.style.display = '';
+}
+
+window.tokenShowToggle = function() {
+  const mutat = localStorage.getItem('mx_token_show') !== 'false';
+  localStorage.setItem('mx_token_show', mutat ? 'false' : 'true');
+  document.getElementById('token-show-toggle').textContent = mutat ? 'OFF' : 'ON';
+  tokenKijelzoFrissit();
+};
 
 // ── Skin ──────────────────────────────────────────────────────────────────────
 
@@ -1721,6 +1771,7 @@ async function geminiHivas(uzenet, rendszer, kulcs, modell) {
     throw new Error(`Gemini ${r.status}: ${err.slice(0, 200)}`);
   }
   const d = await r.json();
+  _lastApiTokens = (d.usageMetadata?.promptTokenCount || 0) + (d.usageMetadata?.candidatesTokenCount || 0);
   return d.candidates?.[0]?.content?.parts?.[0]?.text || '[Üres válasz]';
 }
 
@@ -1747,6 +1798,7 @@ async function claudeHivas(uzenet, rendszer, kulcs, modell) {
     throw new Error(`Claude ${r.status}: ${err.slice(0, 200)}`);
   }
   const d = await r.json();
+  _lastApiTokens = (d.usage?.input_tokens || 0) + (d.usage?.output_tokens || 0);
   return d.content?.[0]?.text || '[Üres válasz]';
 }
 
@@ -1895,6 +1947,7 @@ window.kuld = async function() {
         });
       }
       aiValasz = await aiHivas(kerdes, rendszer);
+      tokenHozzaad(_lastApiTokens);
     }
     }
 
@@ -2455,6 +2508,11 @@ window.uuidMutat = function() {
     txt.textContent = ' Kész · ' + (t === 'offline' || !k ? 'Offline mód' : t);
     await window.statFrissit();
     window.apiValtozas();
+    tokenKijelzoFrissit();
+    // Token toggle gomb állapot
+    const tokenMutat = localStorage.getItem('mx_token_show') !== 'false';
+    const ttBtn = document.getElementById('token-show-toggle');
+    if (ttBtn) ttBtn.textContent = tokenMutat ? 'ON' : 'OFF';
     // Session inicializálás
     const sessLista = await sessionLista();
     const mentettSessId = parseInt(localStorage.getItem('mx_sess_id'));
