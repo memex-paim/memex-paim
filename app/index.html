@@ -527,6 +527,7 @@ input[type=file]#imp-fajl{display:none;}
         <button class="pfx" onclick="osszesMutat()" id="btn-osszes" style="margin-left:auto;">📋 All</button>
       </div>
       <div style="font-size:0.68rem;color:var(--text2);padding:2px 0 6px;" id="keres-sugo">Szöveg · @horgony · időszűrő · 🔗 kapcsolódó</div>
+      <div id="keres-stat" style="display:none;font-size:0.72rem;padding:3px 8px;border-radius:6px;background:var(--bg2);border:1px solid var(--border);margin-bottom:4px;color:var(--text2);"></div>
       <div id="keres-horg-chips" style="display:flex;flex-wrap:wrap;gap:4px;padding:0 0 4px;"></div>
       <div style="margin-bottom:6px;">
         <button class="pfx" onclick="keresHorgOsszesToggle()" id="keres-horg-osszes-btn" style="font-size:0.68rem;padding:2px 6px;width:auto;">▾ All anchors</button>
@@ -2264,6 +2265,16 @@ window.kapcsolodoMutat = async function(sorszam, tartalom, horgonyok, btn) {
 
 // ── Keresés ───────────────────────────────────────────────────────────────────
 
+async function keresStat(megjelenit, talalat, osszes) {
+  const el = document.getElementById('keres-stat');
+  if (!el) return;
+  el.style.display = '';
+  let szoveg = `🔍 ${megjelenit}`;
+  if (talalat > megjelenit) szoveg += ` / ${talalat} found`;
+  szoveg += `  ·  🗄 ${osszes} in DB`;
+  el.textContent = szoveg;
+}
+
 window.keresFutat = async function() {
   if (!_dbKesz) return;
   const q = document.getElementById('keres-q').value.trim();
@@ -2272,7 +2283,6 @@ window.keresFutat = async function() {
   lista.innerHTML = '';
 
   const idoEredmeny = idoParse(q);
-  // @horgony → horgony (az @ jel nem tárolódik a horgonyokban)
   const keresQ = (idoEredmeny ? idoEredmeny.maradek : q).replace(/@(\w+)/g, '$1').trim();
 
   let eredmenyek = keresQ ? await keres(keresQ, 50, false) : await legutobbi(200, false);
@@ -2284,18 +2294,16 @@ window.keresFutat = async function() {
     lista.appendChild(hint);
   }
 
+  const statOssz = (await statisztika()).ossz;
   if (!eredmenyek.length) {
+    keresStat(0, 0, statOssz);
     lista.innerHTML += `<div class="small">${tr('nincs_tal')}</div>`;
     return;
   }
 
-  const db = eredmenyek.length;
-  const mutat = Math.min(db, 30);
-  const szamlalo = document.createElement('div');
-  szamlalo.className = 'small';
-  szamlalo.style.cssText = 'color:var(--text2);padding:2px 0 6px;';
-  szamlalo.textContent = db > 30 ? `${mutat} / ${db}` : `${db}`;
-  lista.appendChild(szamlalo);
+  const talalat = eredmenyek.length;
+  const mutat = Math.min(talalat, 30);
+  keresStat(mutat, talalat, statOssz);
 
   eredmenyek.slice(0,30).forEach(r => {
     const hArr = JSON.parse(r.horgonyok || '[]');
@@ -2332,12 +2340,7 @@ window.osszesMutat = async function() {
   const limit = 500;
   const db_count = mindenki.length;
   const mutat = Math.min(db_count, limit);
-
-  const szamlalo = document.createElement('div');
-  szamlalo.className = 'small';
-  szamlalo.style.cssText = 'color:var(--text2);padding:2px 0 6px;';
-  szamlalo.textContent = db_count > limit ? `${mutat} / ${db_count}` : `${db_count}`;
-  lista.appendChild(szamlalo);
+  keresStat(mutat, db_count, db_count);
 
   mindenki.slice(0, limit).forEach(r => {
     const hArr = JSON.parse(r.horgonyok || '[]');
