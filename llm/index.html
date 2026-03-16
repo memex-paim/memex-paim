@@ -161,7 +161,8 @@
 import * as webllm from "https://esm.run/@mlc-ai/web-llm";
 
 const MODEL_ID = "Qwen3-0.6B-q4f16_1-MLC";
-const SYSTEM_PROMPT = "You are a concise assistant. Answer in maximum 2-3 short sentences. Be direct and clear. No unnecessary explanations.";
+// /no_think disables Qwen3 chain-of-thought — answer comes instantly from DB context
+const SYSTEM_PROMPT = "You are a concise assistant. Answer in maximum 2-3 short sentences. Be direct and clear. No unnecessary explanations. /no_think";
 
 let engine = null;
 let busy = false;
@@ -256,7 +257,7 @@ async function sendMessage() {
       ],
       stream: true,
       temperature: 0.7,
-      max_tokens: 256
+      max_tokens: 128
     });
 
     let response = '';
