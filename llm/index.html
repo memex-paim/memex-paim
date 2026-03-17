@@ -4,6 +4,28 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Memex LLM</title>
+<script>
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./sw.js').then(reg => {
+    reg.addEventListener('updatefound', () => {
+      const sw = reg.installing;
+      sw.addEventListener('statechange', () => {
+        if (sw.state === 'installed' && navigator.serviceWorker.controller) {
+          document.getElementById('update-badge').style.display = 'inline';
+        }
+      });
+    });
+    setInterval(() => reg.update(), 60 * 60 * 1000);
+  }).catch(() => {});
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    document.getElementById('update-badge').style.display = 'inline';
+  });
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible')
+      navigator.serviceWorker.getRegistration().then(r => r && r.update());
+  });
+}
+</script>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -320,6 +342,17 @@
     writing-mode: vertical-rl;
   }
 
+  #update-badge {
+    display: none;
+    font-size: 11px;
+    color: #f0a500;
+    border: 1px solid #f0a500;
+    border-radius: 8px;
+    padding: 1px 7px;
+    cursor: pointer;
+  }
+  #update-badge:hover { background: rgba(240,165,0,0.1); }
+
   /* ── Mobile ── */
   @media (max-width: 600px) {
     :root { --sidebar-w: 200px; }
@@ -358,6 +391,7 @@
   <div id="topbar">
     <button id="menu-btn" onclick="toggleSidebar()">&#9776;</button>
     <span id="topbar-title">Chat</span>
+    <span id="update-badge" onclick="location.reload()">update ↻</span>
     <span id="toks-display"></span>
     <span id="status-badge">initializing</span>
   </div>
