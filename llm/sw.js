@@ -3,7 +3,7 @@
  * Offline cache: minden statikus fájlt cache-el, hogy internet nélkül is betöltsön
  */
 
-const CACHE_VERSION = 'memex-v7';
+const CACHE_VERSION = 'memex-v8';
 const STATIC_ASSETS = [
   './',
   './index.html',
@@ -20,11 +20,15 @@ self.addEventListener('install', event => {
   self.skipWaiting();
 });
 
-// Aktiválás: régi cache törlése
+// Aktiválás: csak saját régi cache törlése — WebLLM model cache-t NEM bántjuk
 self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys().then(keys =>
-      Promise.all(keys.filter(k => k !== CACHE_VERSION).map(k => caches.delete(k)))
+      Promise.all(
+        keys
+          .filter(k => k.startsWith('memex-v') && k !== CACHE_VERSION)
+          .map(k => caches.delete(k))
+      )
     )
   );
   self.clients.claim();
