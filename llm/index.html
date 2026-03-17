@@ -510,6 +510,7 @@ if ('serviceWorker' in navigator) {
   </div>
   -->
   <div class="sidebar-footer" id="model-footer">Loading...</div>
+  <div id="version-label" style="font-size:10px;color:var(--text3);padding:4px 16px 8px;"></div>
 </div>
 
 <!-- Main -->
@@ -804,6 +805,7 @@ async function initModel(modelId) {
     progWrap.style.display = 'none';
     setStatus('ready');
     modelFooter.textContent = MODELS[modelId] || modelId.split('-Instruct')[0];
+    try { const vj = await fetch('./version.json'); const vd = await vj.json(); document.getElementById('version-label').textContent = 'v' + vd.v; } catch {}
     input.disabled = false;
     sendBtn.disabled = false;
     input.focus();
@@ -999,6 +1001,10 @@ async function loadDebugPanel() {
   const rows = [];
 
   // ── Model ──
+  // ── Version ──
+  let appVersion = '—';
+  try { const vj = await fetch('./version.json?_=' + Date.now()); const vd = await vj.json(); appVersion = vd.v; } catch {}
+  rows.push({ label: 'Version', value: appVersion });
   rows.push({ label: 'Model', value: engine ? (MODELS[Object.keys(MODELS)[0]] || 'loaded') : 'not loaded' });
   rows.push({ label: 'WebGPU', value: navigator.gpu ? 'available' : 'NOT available' });
 
