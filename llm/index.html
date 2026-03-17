@@ -475,6 +475,7 @@ if ('serviceWorker' in navigator) {
   <div class="nav-item" onclick="showPanel('search')">Search</div>
   <div class="nav-item" onclick="showPanel('entry')">Entry</div>
   <div class="nav-item" onclick="showPanel('database')">Database</div>
+  <div class="nav-item" onclick="showPanel('export')">Export</div>
   <!-- TODO: model selector — disabled, re-enable when multi-model needed
   <div class="model-select-wrap">
     <select id="model-select" onchange="changeModel(this.value)">
@@ -562,6 +563,48 @@ if ('serviceWorker' in navigator) {
     <div class="panel-content" id="db-list"></div>
   </div>
 
+  <!-- Export panel -->
+  <div class="panel" id="panel-export">
+    <div class="panel-content">
+
+      <div class="panel-row">
+        <div class="panel-label">Export</div>
+        <div style="font-size:13px;color:var(--text3);margin-bottom:12px;">Download your database as a .memex file. Optional password encrypts it.</div>
+        <div class="panel-input-box" style="margin-bottom:8px;">
+          <input type="password" id="exp-pw" placeholder="password (optional)" />
+        </div>
+        <button class="panel-btn" style="border:1px solid var(--text3);border-radius:6px;color:var(--text2);padding:6px 16px;" onclick="doExport()">Download .memex</button>
+        <span class="flash" id="exp-flash" style="margin-left:8px;"></span>
+      </div>
+
+      <div class="panel-divider" style="max-width:680px;margin:20px auto;padding:0 24px;"></div>
+
+      <div class="panel-row">
+        <div class="panel-label">Import</div>
+        <div style="font-size:13px;color:var(--text3);margin-bottom:12px;">Overwrites current database. A backup is auto-saved before import.</div>
+        <input type="file" id="imp-file" accept=".memex" style="display:none;" onchange="impFileSelected(this)" />
+        <div class="panel-input-box" style="margin-bottom:8px;cursor:pointer;" onclick="document.getElementById('imp-file').click()">
+          <span id="imp-file-label" style="flex:1;font-size:14px;color:var(--text3);">Choose .memex file…</span>
+        </div>
+        <div class="panel-input-box" style="margin-bottom:8px;">
+          <input type="password" id="imp-pw" placeholder="password (if set during export)" />
+        </div>
+        <button class="panel-btn" style="border:1px solid var(--text3);border-radius:6px;color:var(--text2);padding:6px 16px;" onclick="doImport()">Import</button>
+        <span class="flash" id="imp-flash" style="margin-left:8px;"></span>
+      </div>
+
+      <div class="panel-divider" style="max-width:680px;margin:20px auto;padding:0 24px;"></div>
+
+      <div class="panel-row">
+        <div class="panel-label">Clear database</div>
+        <div style="font-size:13px;color:var(--text3);margin-bottom:12px;">Deletes all entries. Cannot be undone.</div>
+        <button class="panel-btn" style="border:1px solid var(--text3);border-radius:6px;color:var(--text3);padding:6px 16px;" onclick="doClear()">Clear all data</button>
+        <span class="flash" id="clear-flash" style="margin-left:8px;"></span>
+      </div>
+
+    </div>
+  </div>
+
 </div>
 
 <!-- Watermark -->
@@ -569,7 +612,7 @@ if ('serviceWorker' in navigator) {
 
 <script type="module">
 import * as webllm from "https://esm.run/@mlc-ai/web-llm@0.2.79";
-import { dbInit, keres, bejegyez, legutobbi, statisztika, torol } from "./memex-db.js";
+import { dbInit, keres, bejegyez, legutobbi, statisztika, torol, exportMemex, importMemex, ujAdatbazis } from "./memex-db.js";
 
 const MODELS = {
   "Qwen2.5-0.5B-Instruct-q4f32_1-MLC": "Qwen2.5 0.5B",
@@ -797,6 +840,55 @@ window.sendMessage = async function() {
   sendBtn.disabled = false;
   setStatus('ready');
   input.focus();
+};
+
+// ── Export / Import / Clear ───────────────────────────────────────────────────
+let impFile = null;
+
+window.impFileSelected = function(input) {
+  impFile = input.files[0];
+  document.getElementById('imp-file-label').textContent = impFile ? impFile.name : 'Choose .memex file…';
+};
+
+window.doExport = async function() {
+  const pw = document.getElementById('exp-pw').value;
+  const flash = document.getElementById('exp-flash');
+  try {
+    await exportMemex(pw);
+    flash.textContent = 'downloaded';
+    setTimeout(() => { flash.textContent = ''; }, 2000);
+  } catch (e) {
+    flash.textContent = 'error: ' + e.message;
+  }
+};
+
+window.doImport = async function() {
+  const flash = document.getElementById('imp-flash');
+  if (!impFile) { flash.textContent = 'choose a file first'; return; }
+  const pw = document.getElementById('imp-pw').value;
+  if (!confirm('This will overwrite your current database. Continue?')) return;
+  try {
+    await importMemex(impFile, pw);
+    flash.textContent = 'imported';
+    impFile = null;
+    document.getElementById('imp-file-label').textContent = 'Choose .memex file…';
+    document.getElementById('imp-file').value = '';
+    setTimeout(() => { flash.textContent = ''; }, 3000);
+  } catch (e) {
+    flash.textContent = 'error: ' + e.message;
+  }
+};
+
+window.doClear = async function() {
+  const flash = document.getElementById('clear-flash');
+  if (!confirm('Delete all entries? This cannot be undone.')) return;
+  try {
+    await ujAdatbazis();
+    flash.textContent = 'cleared';
+    setTimeout(() => { flash.textContent = ''; }, 2000);
+  } catch (e) {
+    flash.textContent = 'error: ' + e.message;
+  }
 };
 
 window.showPanel = function(name) {
