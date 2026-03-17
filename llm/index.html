@@ -1542,7 +1542,8 @@ async function loadRSSPanel() {
     const rssEntries = all.filter(r => r.iro === 'rss');
     const cats = {};
     rssEntries.forEach(r => {
-      try { const h = JSON.parse(r.horgonyok); if (h[0]) cats[h[0]] = (cats[h[0]] || 0) + 1; } catch {}
+      const m = r.tartalom.match(/^\[([^\]]+)\]/);
+      if (m) cats[m[1]] = (cats[m[1]] || 0) + 1;
     });
     countEl.textContent = rssEntries.length ? `${rssEntries.length} articles in DB` : '';
 
