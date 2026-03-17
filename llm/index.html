@@ -69,23 +69,42 @@
   .nav-item:hover { color: var(--text2); background: none; }
   .nav-item.active { color: var(--text); background: none; }
 
-  .model-select-wrap {
-    padding: 0 16px;
-    margin-bottom: 8px;
-  }
-  .model-select-wrap select {
-    width: 100%;
-    background: var(--bg3);
-    border: 1px solid var(--border);
-    color: var(--text2);
-    font-size: 11px;
-    padding: 5px 8px;
-    border-radius: 6px;
-    cursor: pointer;
-    outline: none;
-    font-family: inherit;
-  }
+  /* TODO: model selector — disabled, re-enable when multi-model needed
+  .model-select-wrap { padding: 0 16px; margin-bottom: 8px; }
+  .model-select-wrap select { width:100%; background:var(--bg3); border:1px solid var(--border); color:var(--text2); font-size:11px; padding:5px 8px; border-radius:6px; cursor:pointer; outline:none; font-family:inherit; }
   .model-select-wrap select:focus { border-color: var(--accent); }
+  */
+
+  .db-toggle {
+    padding: 0 20px;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    user-select: none;
+  }
+  .db-toggle-dot {
+    width: 28px; height: 16px;
+    border-radius: 8px;
+    background: var(--text3);
+    position: relative;
+    transition: background 0.2s;
+    flex-shrink: 0;
+  }
+  .db-toggle-dot::after {
+    content: '';
+    position: absolute;
+    width: 12px; height: 12px;
+    border-radius: 50%;
+    background: #fff;
+    top: 2px; left: 2px;
+    transition: left 0.2s;
+  }
+  .db-toggle.on .db-toggle-dot { background: var(--accent); }
+  .db-toggle.on .db-toggle-dot::after { left: 14px; }
+  .db-toggle-label { font-size: 12px; color: var(--text3); }
+  .db-toggle.on .db-toggle-label { color: var(--text2); }
 
   .sidebar-footer {
     padding: 8px 20px 16px;
@@ -316,13 +335,18 @@
   <div class="nav-item" onclick="showPanel('search')">Search</div>
   <div class="nav-item" onclick="showPanel('entry')">Entry</div>
   <div class="nav-item" onclick="showPanel('database')">Database</div>
+  <!-- TODO: model selector — disabled, re-enable when multi-model needed
   <div class="model-select-wrap">
     <select id="model-select" onchange="changeModel(this.value)">
       <option value="Qwen2.5-0.5B-Instruct-q4f32_1-MLC">Qwen2.5 0.5B (~500MB)</option>
-      <!-- TODO: too slow on mobile (~4-5 tok/s) — re-enable when better hw available -->
       <option value="gemma-2-2b-it-q4f16_1-MLC" disabled>Gemma 2 2B — slow on mobile</option>
       <option value="Llama-3.2-1B-Instruct-q4f16_1-MLC" disabled>Llama 3.2 1B — slow on mobile</option>
     </select>
+  </div>
+  -->
+  <div class="db-toggle on" id="db-toggle" onclick="dbToggle()">
+    <div class="db-toggle-dot"></div>
+    <span class="db-toggle-label">DB</span>
   </div>
   <div class="sidebar-footer" id="model-footer">Loading...</div>
 </div>
@@ -398,7 +422,14 @@ const MODELS = {
 const SYSTEM_PROMPT = "You are a concise personal AI assistant. Answer in maximum 3 sentences. Be direct. /no_think";
 
 let dbReady = false;
+let dbOn = true;
 dbInit().then(() => { dbReady = true; }).catch(() => {});
+
+window.dbToggle = function() {
+  dbOn = !dbOn;
+  const el = document.getElementById('db-toggle');
+  el.classList.toggle('on', dbOn);
+};
 
 let engine = null;
 let busy = false;
@@ -505,9 +536,9 @@ window.sendMessage = async function() {
   chatMessages.scrollTop = chatMessages.scrollHeight;
 
   try {
-    // RAG: keresés az adatbázisban
+    // RAG: keresés az adatbázisban (csak ha DB toggle BE van kapcsolva)
     let systemPrompt = SYSTEM_PROMPT;
-    if (dbReady) {
+    if (dbOn && dbReady) {
       const talalatok = await keres(text, 5);
       if (talalatok.length > 0) {
         systemPrompt += '\n\n=== YOUR MEMORY DATABASE ===\n';
