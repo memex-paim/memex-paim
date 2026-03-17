@@ -69,9 +69,26 @@
   .nav-item:hover { color: var(--text2); background: none; }
   .nav-item.active { color: var(--text); background: none; }
 
+  .model-select-wrap {
+    padding: 0 16px;
+    margin-bottom: 8px;
+  }
+  .model-select-wrap select {
+    width: 100%;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    color: var(--text2);
+    font-size: 11px;
+    padding: 5px 8px;
+    border-radius: 6px;
+    cursor: pointer;
+    outline: none;
+    font-family: inherit;
+  }
+  .model-select-wrap select:focus { border-color: var(--accent); }
+
   .sidebar-footer {
-    margin-top: auto;
-    padding: 16px 20px;
+    padding: 8px 20px 16px;
     font-size: 11px;
     color: var(--text3);
   }
@@ -299,6 +316,13 @@
   <div class="nav-item" onclick="showPanel('search')">Search</div>
   <div class="nav-item" onclick="showPanel('entry')">Entry</div>
   <div class="nav-item" onclick="showPanel('database')">Database</div>
+  <div class="model-select-wrap">
+    <select id="model-select" onchange="changeModel(this.value)">
+      <option value="Qwen2.5-0.5B-Instruct-q4f32_1-MLC">Qwen2.5 0.5B (~500MB)</option>
+      <option value="gemma-2-2b-it-q4f16_1-MLC">Gemma 2 2B (~1.5GB)</option>
+      <option value="Llama-3.2-1B-Instruct-q4f16_1-MLC">Llama 3.2 1B (~700MB)</option>
+    </select>
+  </div>
   <div class="sidebar-footer" id="model-footer">Loading...</div>
 </div>
 
@@ -362,10 +386,11 @@
 <script type="module">
 import * as webllm from "https://esm.run/@mlc-ai/web-llm@0.2.79";
 
-const MODELS = [
-  "SmolLM2-360M-Instruct-q4f16_1-MLC",
-  "Qwen2.5-0.5B-Instruct-q4f32_1-MLC"
-];
+const MODELS = {
+  "Qwen2.5-0.5B-Instruct-q4f32_1-MLC": "Qwen2.5 0.5B",
+  "gemma-2-2b-it-q4f16_1-MLC":         "Gemma 2 2B",
+  "Llama-3.2-1B-Instruct-q4f16_1-MLC": "Llama 3.2 1B",
+};
 
 const SYSTEM_PROMPT = "You are a concise assistant. Answer in maximum 2-3 short sentences. Be direct. No unnecessary explanations. /no_think";
 
@@ -413,7 +438,7 @@ input.addEventListener('input', () => {
   input.style.height = input.scrollHeight + 'px';
 });
 
-async function initModel() {
+async function initModel(modelId) {
   if (!navigator.gpu) {
     setStatus('no webgpu');
     addMsg('WebGPU not supported. Please use Chrome 113+', 'ai');
@@ -422,39 +447,40 @@ async function initModel() {
 
   progWrap.style.display = 'block';
   setStatus('loading...');
+  progBar.style.width = '0%';
+  progText.textContent = 'Loading ' + modelId + '...';
 
-  for (const modelId of MODELS) {
-    progBar.style.width = '0%';
-    progText.textContent = 'Loading ' + modelId + '...';
+  try {
+    engine = await webllm.CreateMLCEngine(modelId, {
+      initProgressCallback: (p) => {
+        const pct = Math.round((p.progress || 0) * 100);
+        progBar.style.width = pct + '%';
+        progText.textContent = p.text || ('Loading... ' + pct + '%');
+      }
+    });
 
-    try {
-      engine = await webllm.CreateMLCEngine(modelId, {
-        initProgressCallback: (p) => {
-          const pct = Math.round((p.progress || 0) * 100);
-          progBar.style.width = pct + '%';
-          progText.textContent = p.text || ('Loading... ' + pct + '%');
-        }
-      });
+    activeModel = modelId;
+    progWrap.style.display = 'none';
+    setStatus('ready');
+    modelFooter.textContent = MODELS[modelId] || modelId.split('-Instruct')[0];
+    input.disabled = false;
+    sendBtn.disabled = false;
+    input.focus();
 
-      activeModel = modelId;
-      const shortName = modelId.split('-Instruct')[0];
-      progWrap.style.display = 'none';
-      setStatus('ready');
-      modelFooter.textContent = shortName;
-      input.disabled = false;
-      sendBtn.disabled = false;
-      input.focus();
-      return;
-
-    } catch (e) {
-      progText.textContent = 'Trying next model...';
-    }
+  } catch (e) {
+    progWrap.style.display = 'none';
+    setStatus('error');
+    addMsg('Failed to load: ' + e.message, 'ai');
   }
-
-  progWrap.style.display = 'none';
-  setStatus('error');
-  addMsg('Failed to load model. Check browser WebGPU support.', 'ai');
 }
+
+window.changeModel = async function(modelId) {
+  engine = null;
+  input.disabled = true;
+  sendBtn.disabled = true;
+  setStatus('switching...');
+  await initModel(modelId);
+};
 
 window.sendMessage = async function() {
   const text = input.value.trim();
@@ -527,7 +553,7 @@ window.toggleSidebar = function() {
   document.getElementById('sidebar').classList.toggle('hidden');
 };
 
-initModel();
+initModel('Qwen2.5-0.5B-Instruct-q4f32_1-MLC');
 </script>
 </body>
 </html>
