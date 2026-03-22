@@ -317,7 +317,7 @@
   <div class="nav-links">
     <a href="/app/">App</a>
     <a href="/llm/">LLM</a>
-    <a href="/beta/" class="cta">Join Beta</a>
+    <a href="#beta" class="cta">Join Beta</a>
   </div>
 </nav>
 
@@ -433,20 +433,59 @@
   <div class="cta-inner">
     <div style="font-size:40px;margin-bottom:16px;">🚀</div>
     <h2>Join the Beta</h2>
-    <p>Be among the first to test Memex PAIM on Android. Your feedback directly shapes the app. After signing up you'll receive a Google Play invite link by email.</p>
-    <a class="btn btn-primary" href="/beta/" style="justify-content:center;width:100%;max-width:320px;margin:0 auto;display:flex;">
-      Apply as Beta Tester →
-    </a>
-    <p class="cta-note">Android device required. Free, no obligations.</p>
+    <p>Be among the first to test Memex PAIM on Android. Your feedback directly shapes the app. You'll receive a Google Play invite link by email.</p>
+    <form id="join-form" style="display:flex;gap:10px;max-width:420px;margin:24px auto 0;">
+      <input type="email" id="join-email" placeholder="your@email.com" required
+        style="flex:1;padding:13px 16px;border-radius:8px;border:1px solid #30363d;
+               background:#0d1117;color:#e6edf3;font-size:15px;outline:none;">
+      <button type="submit"
+        style="background:#58a6ff;color:#0d1117;font-weight:700;font-size:15px;
+               padding:13px 22px;border-radius:8px;border:none;cursor:pointer;white-space:nowrap;">
+        Join →
+      </button>
+    </form>
+    <p id="join-msg" style="margin-top:14px;font-size:14px;min-height:20px;color:#3fb950;"></p>
+    <p class="cta-note">Android required · Free · No spam · Unsubscribe anytime</p>
   </div>
 </section>
+<script>
+document.getElementById('join-form').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  const email = document.getElementById('join-email').value.trim();
+  const msg   = document.getElementById('join-msg');
+  const btn   = this.querySelector('button');
+  btn.disabled = true;
+  btn.textContent = '...';
+  try {
+    const r = await fetch('https://api.memexpaim.com/subscribe', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({email})
+    });
+    const d = await r.json();
+    if (d.ok) {
+      msg.style.color = '#3fb950';
+      msg.textContent = '✓ Check your inbox to confirm your subscription.';
+      document.getElementById('join-email').value = '';
+    } else {
+      msg.style.color = '#f85149';
+      msg.textContent = 'Something went wrong. Please try again.';
+    }
+  } catch {
+    msg.style.color = '#f85149';
+    msg.textContent = 'Connection error. Please try again.';
+  }
+  btn.disabled = false;
+  btn.textContent = 'Join →';
+});
+</script>
 
 <!-- FOOTER -->
 <footer>
   <div class="footer-links">
     <a href="/app/">App</a>
     <a href="/llm/">Offline AI (LLM)</a>
-    <a href="/beta/">Beta</a>
+    <a href="#beta">Beta</a>
     <a href="https://github.com/memex-paim/memexpaim-app" target="_blank" rel="noopener">GitHub</a>
   </div>
   <div>© 2026 Memex PAIM · <a href="https://github.com/memex-paim/memexpaim-app/blob/master/LICENSE" target="_blank" rel="noopener">CC BY-NC 4.0</a> · No cookies. No tracking. No cloud.</div>

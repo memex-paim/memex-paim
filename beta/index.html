@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Memex Paim – Beta Testers</title>
+  <title>Memex PAIM — Join Beta</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -26,74 +26,59 @@
       width: 100%;
       text-align: center;
     }
-    .logo {
-      font-size: 48px;
-      margin-bottom: 16px;
-    }
-    h1 {
-      font-size: 28px;
-      font-weight: 700;
-      color: #58a6ff;
-      margin-bottom: 8px;
-    }
-    .subtitle {
-      color: #8b949e;
-      font-size: 15px;
-      margin-bottom: 32px;
-      line-height: 1.5;
-    }
+    .logo { font-size: 48px; margin-bottom: 16px; }
+    h1 { font-size: 28px; font-weight: 700; color: #58a6ff; margin-bottom: 8px; }
+    .subtitle { color: #8b949e; font-size: 15px; margin-bottom: 28px; line-height: 1.5; }
     .features {
       text-align: left;
       background: #0d1117;
       border-radius: 10px;
-      padding: 20px 24px;
-      margin-bottom: 32px;
+      padding: 16px 20px;
+      margin-bottom: 28px;
     }
-    .features li {
-      list-style: none;
-      padding: 6px 0;
-      font-size: 14px;
-      color: #c9d1d9;
+    .features li { list-style: none; padding: 5px 0; font-size: 14px; color: #c9d1d9; }
+    .features li span { margin-right: 8px; }
+    .form-row {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 12px;
     }
-    .features li span {
-      margin-right: 8px;
+    input[type="email"] {
+      flex: 1;
+      padding: 13px 16px;
+      border-radius: 8px;
+      border: 1px solid #30363d;
+      background: #0d1117;
+      color: #e6edf3;
+      font-size: 15px;
+      outline: none;
     }
-    .btn {
-      display: inline-block;
+    input[type="email"]:focus { border-color: #58a6ff; }
+    button {
       background: #58a6ff;
       color: #0d1117;
       font-weight: 700;
-      font-size: 16px;
-      padding: 14px 32px;
-      border-radius: 10px;
-      text-decoration: none;
+      font-size: 15px;
+      padding: 13px 22px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      white-space: nowrap;
       transition: background 0.2s;
-      width: 100%;
     }
-    .btn:hover {
-      background: #79b8ff;
-    }
-    .note {
-      margin-top: 20px;
-      font-size: 12px;
-      color: #6e7681;
-      line-height: 1.5;
-    }
-    .back {
-      margin-top: 24px;
-      font-size: 13px;
-    }
-    .back a {
-      color: #58a6ff;
-      text-decoration: none;
-    }
+    button:hover { background: #79b8ff; }
+    button:disabled { opacity: 0.6; cursor: default; }
+    #msg { font-size: 14px; min-height: 20px; color: #3fb950; }
+    .note { margin-top: 16px; font-size: 12px; color: #6e7681; line-height: 1.5; }
+    .back { margin-top: 24px; font-size: 13px; }
+    .back a { color: #58a6ff; text-decoration: none; }
   </style>
 </head>
 <body>
   <div class="card">
     <div class="logo">🧠</div>
-    <h1>Join Beta Testing</h1>
-    <p class="subtitle">Be among the first to try Memex Paim on Android.<br>Your feedback shapes the app.</p>
+    <h1>Join Beta</h1>
+    <p class="subtitle">Be among the first to try Memex PAIM on Android.<br>Your feedback shapes the app.</p>
 
     <ul class="features">
       <li><span>🔒</span> No server, no account, no tracking</li>
@@ -104,13 +89,48 @@
       <li><span>🌍</span> 28 languages supported</li>
     </ul>
 
-    <a class="btn" href="https://docs.google.com/forms/d/e/1FAIpQLSeZFTWmzLD4ndwk1yvmjIw80aiXXv0gExvor2A3ZaQfMcelmQ/viewform" target="_blank">
-      Apply as Beta Tester →
-    </a>
+    <form id="join-form">
+      <div class="form-row">
+        <input type="email" id="join-email" placeholder="your@email.com" required>
+        <button type="submit">Join →</button>
+      </div>
+      <p id="msg"></p>
+    </form>
 
-    <p class="note">After signing up, you'll receive a Google Play invite link via email.<br>Android device required.</p>
-
+    <p class="note">Android required · Free · No spam · Unsubscribe anytime</p>
     <div class="back"><a href="https://memexpaim.com">← Back to memexpaim.com</a></div>
   </div>
+
+  <script>
+  document.getElementById('join-form').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const email = document.getElementById('join-email').value.trim();
+    const msg   = document.getElementById('msg');
+    const btn   = this.querySelector('button');
+    btn.disabled = true;
+    btn.textContent = '...';
+    try {
+      const r = await fetch('https://api.memexpaim.com/subscribe', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({email})
+      });
+      const d = await r.json();
+      if (d.ok) {
+        msg.style.color = '#3fb950';
+        msg.textContent = '✓ Check your inbox to confirm your subscription.';
+        document.getElementById('join-email').value = '';
+      } else {
+        msg.style.color = '#f85149';
+        msg.textContent = 'Something went wrong. Please try again.';
+      }
+    } catch {
+      msg.style.color = '#f85149';
+      msg.textContent = 'Connection error. Please try again.';
+    }
+    btn.disabled = false;
+    btn.textContent = 'Join →';
+  });
+  </script>
 </body>
 </html>
